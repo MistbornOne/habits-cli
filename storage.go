@@ -3,13 +3,12 @@ package main
 import(
 	"encoding/json"
 	"os"
-	"time"
 )
 
 type HabitData struct {
 	Dates []string `json:"dates"`
 	Streak int `json:"streak"`
-	Longest int `json:"longest`
+	Longest int `json:"longest"`
 }
 
 type HabitStore map[string]HabitData
@@ -40,6 +39,3 @@ func saveHabits(data HabitStore) error {
 	return os.WriteFile(habitFile, bytes, 0644)
 }
 
-func today() string {
-	return time.Now().Format("2006-01-02")
-}
