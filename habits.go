@@ -19,11 +19,27 @@ type model struct {
 func initialModel() model {
 	store, _ := loadHabits()
 
-	return model{
-		habits: []string{"💧 Water Before Coffee", "☀️ Morning Pages", "✝️ Read Bible", "😍 Gratitude Practice", "👨🏼‍💻 Coding", "🇯🇵 Japanese", "📚 Read"},
+	selected := make(map[int]bool)
+	habits := []string{"💧 Water Before Coffee", "☀️ Morning Pages", "✝️ Read Bible", "😍 Gratitude Practice", "👨🏼‍💻 Coding", "🇯🇵 Japanese", "📚 Read",}
 
-		selected: make(map[int]bool),
+	todayStr := today()
+  
+  for i, habit := range habits {
+		if entry, ok := store[habit]; ok {
+			for _, d := range entry.Dates {
+				if d == todayStr {
+					selected[i] = true
+					break
+				}
+			}
+		}
+	}
+
+	return model{
+    habits: habits,
+	  selected: selected,	
 		store: store,
+
 	}
 }
 

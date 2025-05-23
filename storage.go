@@ -8,7 +8,7 @@ import(
 
 type HabitData struct {
 	Dates []string `json:"dates"`
-	Streak int `json:"strek"`
+	Streak int `json:"streak"`
 }
 
 type HabitStore map[string]HabitData

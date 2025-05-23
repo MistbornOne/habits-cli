@@ -1,38 +1,31 @@
 {
- "☀️ Morning Pages": {
-  "dates": [
-   "2025-05-23"
-  ],
-  "strek": 1
- },
- "✝️ Read Bible": {
-  "dates": [
-   "2025-05-23"
-  ],
-  "strek": 1
- },
- "🇯🇵 Japanese": {
-  "dates": [
-   "2025-05-23"
-  ],
-  "strek": 1
- },
- "👨🏼‍💻 Coding": {
-  "dates": [
-   "2025-05-23"
-  ],
-  "strek": 1
- },
- "💧 Water Before Coffee": {
-  "dates": [
-   "2025-05-23"
-  ],
-  "strek": 1
- },
- "😍 Gratitude Practice": {
-  "dates": [
-   "2025-05-23"
-  ],
-  "strek": 1
- }
+  "☀️ Morning Pages": {
+    "dates": ["2025-05-23"],
+    "streak": 1
+  },
+  "✝️ Read Bible": {
+    "dates": ["2025-05-23"],
+    "streak": 1
+  },
+  "🇯🇵 Japanese": {
+    "dates": ["2025-05-23"],
+    "streak": 1
+  },
+  "👨🏼‍💻 Coding": {
+    "dates": ["2025-05-23"],
+    "streak": 1
+  },
+  "💧 Water Before Coffee": {
+    "dates": ["2025-05-23"],
+    "streak": 1
+  },
+  "📚 Read": {
+    "dates": [],
+    "streak": 0
+  },
+  "😍 Gratitude Practice": {
+    "dates": ["2025-05-23"],
+    "streak": 1
+  }
 }
+
