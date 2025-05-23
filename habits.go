@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -12,13 +13,17 @@ type model struct {
 	habits []string
 	cursor int
 	selected map[int]bool
+	store HabitStore
 }
 
 func initialModel() model {
+	store, _ := loadHabits()
+
 	return model{
 		habits: []string{"💧 Water Before Coffee", "☀️ Morning Pages", "✝️ Read Bible", "😍 Gratitude Practice", "👨🏼‍💻 Coding", "🇯🇵 Japanese", "📚 Read"},
 
 		selected: make(map[int]bool),
+		store: store,
 	}
 }
 
@@ -46,15 +51,73 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "enter", " ":
 			_, ok := m.selected[m.cursor]
+			todayStr := today()
+			habit := m.habits[m.cursor]
+
 			if ok {
 				delete(m.selected, m.cursor)
+
+				if entry, exists := m.store[habit]; exists {
+					newDates := []string{}
+					for _, d := range entry.Dates {
+						if d != todayStr {
+							newDates = append(newDates, d)
+						}
+					}
+
+					entry.Dates = newDates
+					entry.Streak = calculateStreak(newDates)
+					m.store[habit] =  entry
+				}
+				
 			} else {
 				m.selected[m.cursor] = true
+
+				entry := m.store[habit]
+				if !contains(entry.Dates, todayStr) {
+					entry.Dates = append(entry.Dates, todayStr)
+					entry.Streak = calculateStreak(entry.Dates)
+					m.store[habit] = entry
+				}
 			}
+		saveHabits(m.store)
 		}
 	}
 
 	return m, nil
+}
+
+func contains(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
+
+func calculateStreak(dates []string) int {
+	if len(dates) == 0 {
+		return 0
+	}
+
+	dateMap := map[string]bool{}
+	for _, d := range dates {
+		dateMap[d] = true
+	}
+
+	streak := 0
+	t := time.Now()
+	for {
+		ds := t.Format("2006-01-02")
+		if dateMap[ds] {
+			streak++
+			t = t.AddDate(0,0, -1)
+		} else{
+			break
+		}
+	}
+	return streak
 }
 
 func (m model) View() string {
@@ -72,7 +135,8 @@ func (m model) View() string {
 			checked = "x"
 		}
 
-		s += fmt.Sprintf("%s [%s] %s\n", cursor, checked, habits)
+		streak := m.store[habits].Streak
+		s += fmt.Sprintf("%s [%s] %s (%d🔥)\n", cursor, checked, habits, streak)
 	}
 
 	s += "\nPress q to quit. \n"
