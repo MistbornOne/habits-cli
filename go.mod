@@ -1,4 +1,4 @@
-module charm-habits
+module github.com/MistbornOne/habits-cli
 
 go 1.24.2
 
