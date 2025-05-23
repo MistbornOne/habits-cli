@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"sort"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -83,6 +84,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 					entry.Dates = newDates
 					entry.Streak = calculateStreak(newDates)
+					entry.Longest = calculateLongestStreak(entry.Dates)
 					m.store[habit] =  entry
 				}
 				
@@ -93,6 +95,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if !contains(entry.Dates, todayStr) {
 					entry.Dates = append(entry.Dates, todayStr)
 					entry.Streak = calculateStreak(entry.Dates)
+					entry.Longest = calculateLongestStreak((entry.Dates))
 					m.store[habit] = entry
 				}
 			}
@@ -136,8 +139,43 @@ func calculateStreak(dates []string) int {
 	return streak
 }
 
+func calculateLongestStreak(dates []string) int {
+	if len(dates) == 0 {
+		return 0
+
+	}
+
+	var parsed []time.Time
+	for _, d := range dates{
+		t, err := time.Parse("2006-01-02", d)
+		if err == nil {
+			parsed = append(parsed, t)
+		}
+	}
+
+	sort.Slice(parsed, func(i, j int) bool {
+		return parsed[i].Before(parsed[j])
+	})
+
+	longest := 1
+	current := 1
+
+	for i := 1; i < len(parsed); i++ {
+		diff := parsed[i].Sub(parsed[i-1]).Hours() / 24
+		if diff == 1 {
+			current++
+			if current > longest {
+				longest = current
+			}
+		} else if diff > 1{
+			current = 1
+		}
+	}
+	return longest
+}
+
 func (m model) View() string {
-	s := "💪🏼🔥 Habit Tracker\n\n"
+	s := "      💪🏼🔥 Habit Tracker\n\n"
 
 	for i, habits := range m.habits {
 		cursor := " "
@@ -151,8 +189,8 @@ func (m model) View() string {
 			checked = "x"
 		}
 
-		streak := m.store[habits].Streak
-		s += fmt.Sprintf("%s [%s] %s (%d🔥)\n", cursor, checked, habits, streak)
+		entry := m.store[habits]
+		s += fmt.Sprintf("%s [%s] %s (%d🔥 / %d🏆)\n", cursor, checked, habits, entry.Streak, entry.Longest)
 	}
 
 	s += "\nPress q to quit. \n"
