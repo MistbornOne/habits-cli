@@ -3,6 +3,7 @@ package main
 import(
 	"encoding/json"
 	"os"
+	"path/filepath"
 )
 
 type HabitData struct {
@@ -13,7 +14,17 @@ type HabitData struct {
 
 type HabitStore map[string]HabitData
 
-const habitFile = "habits.json"
+var habitFile string
+
+func init() {
+	exePath, err := os.Executable()
+	if err != nil {
+		panic("Could not determine executable path: " + err.Error())
+	}
+
+	dir := filepath.Dir(exePath)
+	habitFile = filepath.Join(dir, "habits.json")
+}
 
 func loadHabits() (HabitStore, error) {
 	data := HabitStore{}
