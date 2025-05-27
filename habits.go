@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -17,15 +17,15 @@ var headerBox = lipgloss.NewStyle().
 	Render("      💪🏼 Habit Tracker")
 
 type model struct {
-	habits     []string
-	cursor     int
-	selected   map[int]bool
-	store      HabitStore
-	manualOverride bool
-	promptingdate  bool
-	promptingcurrent bool
-	promptinglongest bool
-	datepicker textinput.Model
+	habits              []string
+	cursor              int
+	selected            map[int]bool
+	store               HabitStore
+	manualOverride      bool
+	promptingdate       bool
+	promptingcurrent    bool
+	promptinglongest    bool
+	datepicker          textinput.Model
 	currentstreakpicker textinput.Model
 	longeststreakpicker textinput.Model
 }
@@ -40,6 +40,7 @@ func initialModel() model {
 		"😍 Gratitude Practice",
 		"👨🏼‍💻 Coding",
 		"🇯🇵 Japanese",
+		"🏋🏼‍♂️ Workout",
 		"📚 Read",
 	}
 	todayStr := today()
@@ -72,12 +73,11 @@ func initialModel() model {
 	tiLongestStreak.CharLimit = 3
 	tiLongestStreak.Width = 20
 
-
 	return model{
-		habits:     habits,
-		selected:   selected,
-		store:      store,
-		datepicker: tiDate,
+		habits:              habits,
+		selected:            selected,
+		store:               store,
+		datepicker:          tiDate,
 		currentstreakpicker: tiCurrentStreak,
 		longeststreakpicker: tiLongestStreak,
 	}
@@ -104,7 +104,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		return m, cmd
-} else if m.promptingcurrent {
+	} else if m.promptingcurrent {
 		var cmd tea.Cmd
 		m.currentstreakpicker, cmd = m.currentstreakpicker.Update(msg)
 		switch msg := msg.(type) {
@@ -190,14 +190,14 @@ func (m *model) toggleToday() {
 				}
 			}
 			entry.Dates = newDates
-			
+
 			if !m.manualOverride {
 				yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
-  			entry.Streak = calculateStreakFrom(yesterday, newDates)
+				entry.Streak = calculateStreakFrom(yesterday, newDates)
 
 			}
 
-		  entry.Longest = max(entry.Longest, calculateLongestStreak(newDates))
+			entry.Longest = max(entry.Longest, calculateLongestStreak(newDates))
 			m.store[habit] = entry
 		}
 	} else {
@@ -207,8 +207,8 @@ func (m *model) toggleToday() {
 			entry.Dates = append(entry.Dates, todayStr)
 
 			if !m.manualOverride {
-        
-			  entry.Streak = calculateStreakFrom(todayStr, entry.Dates)
+
+				entry.Streak = calculateStreakFrom(todayStr, entry.Dates)
 			}
 			entry.Longest = max(entry.Longest, calculateLongestStreak(entry.Dates))
 			m.store[habit] = entry
@@ -269,7 +269,6 @@ func (m *model) logSpecificLongest(value string) {
 	saveHabits(m.store)
 }
 
-
 func (m model) View() string {
 	if m.promptingdate {
 		return fmt.Sprintf("\nLog date for %s\n%s\n[enter] to confirm, [esc] to cancel\n", m.habits[m.cursor], m.datepicker.View())
@@ -277,7 +276,7 @@ func (m model) View() string {
 		return fmt.Sprintf("\nLog current streak for %s\n%s\n[enter] to confirm, [esc] to cancel\n", m.habits[m.cursor], m.currentstreakpicker.View())
 	} else if m.promptinglongest {
 		return fmt.Sprintf("\nLog longest streak for %s\n%s\n[enter] to confirm, [esc] to cancel\n", m.habits[m.cursor], m.longeststreakpicker.View())
-  }
+	}
 
 	s := "\n" + headerBox + "\n\n\n"
 	for i, habit := range m.habits {
@@ -303,4 +302,3 @@ func main() {
 		os.Exit(1)
 	}
 }
-
